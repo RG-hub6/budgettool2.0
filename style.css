@@ -1,0 +1,35 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 20px;
+}
+
+h1, h2, h3 {
+  color: #333;
+}
+
+#app {
+  margin-top: 20px;
+}
+
+.month-block {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.category, .sub-category {
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+button {
+  margin-left: 5px;
+}
+
+input[type="number"], input[type="text"] {
+  margin-left: 5px;
+}
