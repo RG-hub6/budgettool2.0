@@ -1,5 +1,11 @@
 body {
-  font-family: Arial, sans-serif;
+  #loginForm {
+  margin: 20px;
+}
+#budgetApp {
+  margin: 20px;
+}
+font-family: Arial, sans-serif;
   background: #f4f6f8;
   padding: 20px;
 }
