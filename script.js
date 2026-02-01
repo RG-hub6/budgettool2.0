@@ -43,7 +43,12 @@ function calculate() {
 function renderOverview() {
   const div = document.getElementById("overview");
   div.innerHTML = "";
-  
+
+  // Zorg dat er altijd minstens 1 supercategorie is
+  if(Object.keys(data[months[currentMonth]].categories).length===0){
+    data[months[currentMonth]].categories["Algemeen"]={items:[], sub:{}};
+  }
+
   function walk(categ, container){
     Object.keys(categ).forEach(key=>{
       const cat = categ[key];
@@ -168,5 +173,5 @@ function render(){
   renderOverview();
 }
 
-// Start rendering
 render();
+
