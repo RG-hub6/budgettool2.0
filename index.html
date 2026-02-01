@@ -21,6 +21,25 @@ canvas { max-width:100%; }
 label { margin-right:10px; }
 </style>
 </head>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAA9_mD7N2gcby8MZZpQmGOf8lnCOTmUfg",
+    authDomain: "budgettool5-0.firebaseapp.com",
+    projectId: "budgettool5-0",
+    storageBucket: "budgettool5-0.firebasestorage.app",
+    messagingSenderId: "1015306270433",
+    appId: "1:1015306270433:web:d6c9e671c2f83746f9e9a0"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 <body>
 <header>
   <h1>Budgettool 5.0</h1>
