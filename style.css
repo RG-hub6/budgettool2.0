@@ -53,4 +53,5 @@ button.small {
   display: flex;
   gap: 5px;
 }
+#loginForm { max-width:400px; margin:40px auto; }
 
