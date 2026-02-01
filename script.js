@@ -1,42 +1,40 @@
-// Check of iemand ingelogd is
-auth.onAuthStateChanged(user => {
+const authInstance = window.auth;
+
+// Account aanmaken
+document.getElementById('signupBtn').addEventListener('click', () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  authInstance.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      console.log("Account aangemaakt:", userCredential.user.email);
+    })
+    .catch(error => alert(error.message));
+});
+
+// Inloggen
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  authInstance.signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      console.log("Ingelogd als:", userCredential.user.email);
+    })
+    .catch(error => alert(error.message));
+});
+
+// Auth-status controleren
+authInstance.onAuthStateChanged(user => {
   if (user) {
-    // Gebruiker is ingelogd
     document.getElementById('budgetApp').style.display = 'block';
     document.getElementById('loginForm').style.display = 'none';
-    console.log('Ingelogd als:', user.email);
   } else {
-    // Gebruiker is niet ingelogd
     document.getElementById('budgetApp').style.display = 'none';
     document.getElementById('loginForm').style.display = 'block';
   }
 });
 
-// Verstuur login link via email
-document.getElementById('sendLink').addEventListener('click', () => {
-  const email = document.getElementById('email').value;
-  const actionCodeSettings = {
-    url: window.location.href, // terug naar je site
-    handleCodeInApp: true
-  };
-  auth.sendSignInLinkToEmail(email, actionCodeSettings)
-    .then(() => {
-      window.localStorage.setItem('emailForSignIn', email);
-      alert('Check je email om in te loggen!');
-    })
-    .catch(err => console.error(err));
-});
-
-// Controleer of gebruiker via email-link komt
-if (auth.isSignInWithEmailLink(window.location.href)) {
-  let email = window.localStorage.getItem('emailForSignIn');
-  if (!email) email = window.prompt('Vul je email in om te bevestigen:');
-  auth.signInWithEmailLink(email, window.location.href)
-    .then(result => {
-      console.log('Ingelogd als:', result.user.email);
-    })
-    .catch(err => console.error(err));
-}
 const months = [
   "Januari","Februari","Maart","April","Mei","Juni",
   "Juli","Augustus","September","Oktober","November","December"
