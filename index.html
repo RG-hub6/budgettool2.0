@@ -1,128 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Budgettool 5.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-// Voeg een entry toe
-function addEntry() {
-  const pathStr = document.getElementById("categoryPath").value.trim();
-  const itemName = document.getElementById("itemName").value.trim();
-  const amount = parseFloat(document.getElementById("amount").value);
-  const kind = document.getElementById("kind").value;
-  const freq = document.getElementById("frequency").value;
-  if(!pathStr || !itemName || isNaN(amount)) return;
+<h1>📊 Budgettool 5.0</h1>
 
-  const path = pathStr.split(">").map(p=>p.trim());
+<div id="months"></div>
 
-  let obj = data[months[currentMonth]].categories;
-  path.forEach(p=>{
-    if(!obj[p]) obj[p]={items:[], sub:{}};
-    obj = obj[p].sub;
-  });
-  // Voeg het item toe aan de laatste categorie
-  let parent = data[months[currentMonth]].categories;
-  path.forEach(p=>{parent=parent[p]});
-  parent.items.push({name:itemName, amount, kind, freq});
-  document.getElementById("categoryPath").value="";
-  document.getElementById("itemName").value="";
-  document.getElementById("amount").value="";
-  render();
-}
+<div class="summary">
+  <div>Inkomsten: € <span id="income">0</span></div>
+  <div>Uitgaven: € <span id="expense">0</span></div>
+  <div>Saldo: € <span id="balance">0</span></div>
+</div>
 
-// Bepaal of item van toepassing is deze maand
-function appliesThisMonth(item,m) {
-  if(item.freq==="once") return m===currentMonth;
-  if(item.freq==="month") return true;
-  if(item.freq==="year") return m===0;
-  if(item.freq==="week") return true;
-  return false;
-}
+<canvas id="chart" width="420" height="200"></canvas>
 
-// Bereken totaal inkomsten/uitgaven voor huidige maand
-function calculate() {
-  let inc=0, exp=0;
-  function walk(categ){
-    Object.values(categ).forEach(cat=>{
-      cat.items.forEach(item=>{
-        if(appliesThisMonth(item,currentMonth)){
-          if(item.kind==="income") inc+=item.amount;
-          else exp+=item.amount;
-        }
-      });
-      walk(cat.sub);
-    });
-  }
-  walk(data[months[currentMonth]].categories);
-  return {inc, exp, bal: inc-exp};
-}
+<hr>
 
-// Render overzicht van categorieën + items
-function renderOverview() {
-  const div=document.getElementById("overview");
-  div.innerHTML="";
-  function walk(categ, container){
-    Object.keys(categ).forEach(key=>{
-      const cat = categ[key];
-      const catDiv = document.createElement("div");
-      catDiv.className="category";
-      const title = document.createElement("strong");
-      title.innerText=key;
-      catDiv.appendChild(title);
+<h2>Nieuwe invoer</h2>
+<input id="categoryPath" placeholder="Categorie > Subcategorie">
+<br>
+<input id="itemName" placeholder="Naam / referentie">
+<br>
+<input id="amount" type="number" placeholder="Bedrag">
+<br>
+<select id="kind">
+  <option value="expense">Uitgave</option>
+  <option value="income">Inkomen</option>
+</select>
+<select id="frequency">
+  <option value="once">Eenmalig</option>
+  <option value="week">Wekelijks</option>
+  <option value="month">Maandelijks</option>
+  <option value="year">Jaarlijks</option>
+</select>
+<br>
+<button onclick="addEntry()">Toevoegen</button>
 
-      // Knoppen om subcategorie toe te voegen
-      const addSub = document.createElement("button");
-      addSub.innerText="+Sub";
-      addSub.className="small";
-      addSub.onclick=()=>{
-        const subName=prompt("Naam subcategorie:");
-        if(!subName) return;
-        cat.sub[subName]={items:[], sub:{}};
-        render();
-      };
-      catDiv.appendChild(addSub);
+<hr>
 
-      // Items
-      cat.items.forEach(item=>{
-        if(appliesThisMonth(item,currentMonth)){
-          const iDiv=document.createElement("div");
-          iDiv.innerText=`${item.name} — €${item.amount} (${item.kind}, ${item.freq})`;
-          iDiv.style.marginLeft="20px";
-          catDiv.appendChild(iDiv);
-        }
-      });
+<h2>Overzicht deze maand</h2>
+<div id="overview"></div>
 
-      container.appendChild(catDiv);
-      walk(cat.sub, catDiv);
-    });
-  }
-  walk(data[months[currentMonth]].categories, div);
-}
-
-// Render grafiek
-function renderChart(t){
-  const c=document.getElementById("chart");
-  const ctx=c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
-  const vals=[t.inc,t.exp];
-  const cols=["#4caf50","#f44336"];
-  const max=Math.max(...vals,1);
-  vals.forEach((v,i)=>{
-    const h=(v/max)*150;
-    ctx.fillStyle=cols[i];
-    ctx.fillRect(80+i*140,180-h,60,h);
-  });
-}
-
-// Render alles
-function render(){
-  renderMonths();
-  const t=calculate();
-  document.getElementById("income").innerText=t.inc.toFixed(2);
-  document.getElementById("expense").innerText=t.exp.toFixed(2);
-  document.getElementById("balance").innerText=t.bal.toFixed(2);
-  renderChart(t);
-  renderOverview();
-}
-
-render();
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
-
