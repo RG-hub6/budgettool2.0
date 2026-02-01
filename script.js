@@ -1,4 +1,4 @@
-// === BEGIN HERSTELDE BUDGETTOOL ===
+// === BEGIN ULTIEME WORKING BUDGETTOOL ===
 
 // Maanden
 const months = [
@@ -82,16 +82,19 @@ function renderOverview(){
       catDiv.appendChild(titleDiv);
 
       // Items
-      cat.items.forEach((item,i)=>{
+      cat.items.forEach(item=>{
         const iDiv = document.createElement("div");
         iDiv.className="item";
+
         const nameInput = document.createElement("input");
         nameInput.value = item.name;
         nameInput.onchange=()=>{item.name=nameInput.value; render();}
+
         const amtInput = document.createElement("input");
         amtInput.value = item.amount.toFixed(2);
         amtInput.type="number";
         amtInput.onchange=()=>{item.amount=parseFloat(amtInput.value); render();}
+
         const freqSelect = document.createElement("select");
         ["once","day","week","month","year"].forEach(f=>{
           const opt = document.createElement("option");
@@ -110,10 +113,17 @@ function renderOverview(){
         });
         kindSelect.onchange=()=>{item.kind=kindSelect.value; render();}
 
+        // ❌ delete button werkt altijd
         const delBtn = document.createElement("button");
         delBtn.innerText="❌";
         delBtn.className="small";
-        delBtn.onclick=()=>{cat.items.splice(i,1); render();}
+        delBtn.onclick = () => {
+          const index = cat.items.indexOf(item);
+          if(index > -1){
+            cat.items.splice(index,1);
+            render();
+          }
+        };
 
         iDiv.appendChild(nameInput);
         iDiv.appendChild(amtInput);
@@ -127,17 +137,26 @@ function renderOverview(){
       // +Nieuw vak inline
       const newDiv = document.createElement("div");
       newDiv.className="new-entry";
-      const nameInp = document.createElement("input"); nameInp.placeholder="Naam";
-      const amtInp = document.createElement("input"); amtInp.placeholder="Bedrag"; amtInp.type="number";
+
+      const nameInp = document.createElement("input"); 
+      nameInp.placeholder="Naam";
+
+      const amtInp = document.createElement("input"); 
+      amtInp.placeholder="Bedrag"; 
+      amtInp.type="number";
+
       const freqInp = document.createElement("select");
       ["once","day","week","month","year"].forEach(f=>{
         const opt=document.createElement("option"); opt.value=f; opt.innerText=f; freqInp.appendChild(opt);
       });
+
       const kindInp = document.createElement("select");
       ["income","expense"].forEach(k=>{
         const opt=document.createElement("option"); opt.value=k; opt.innerText=k; kindInp.appendChild(opt);
       });
-      const addBtn = document.createElement("button"); addBtn.innerText="+Toevoegen";
+
+      const addBtn = document.createElement("button"); 
+      addBtn.innerText="+Toevoegen";
       addBtn.onclick = ()=>{
         const n = nameInp.value.trim();
         let a = parseFloat(amtInp.value);
@@ -145,6 +164,7 @@ function renderOverview(){
         cat.items.push({name:n, amount:a, freq:freqInp.value, kind:kindInp.value});
         nameInp.value=""; amtInp.value=""; render();
       };
+
       newDiv.appendChild(nameInp);
       newDiv.appendChild(amtInp);
       newDiv.appendChild(freqInp);
@@ -189,4 +209,4 @@ function render(){
 
 render();
 
-// === EINDE HERSTELDE BUDGETTOOL ===
+// === EINDE ULTIEME WORKING BUDGETTOOL ===
