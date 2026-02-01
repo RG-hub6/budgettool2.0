@@ -4,11 +4,9 @@ const months = [
 ];
 let currentMonth = 0;
 
-// Data per maand
 let data = {};
 months.forEach(m => data[m] = {categories:{}});
 
-// Render maandknoppen
 function renderMonths() {
   const div = document.getElementById("months");
   div.innerHTML = "";
@@ -21,7 +19,6 @@ function renderMonths() {
   });
 }
 
-// Bereken totaal inkomsten/uitgaven
 function calculate() {
   let inc=0, exp=0;
   function walk(categ){
@@ -43,7 +40,6 @@ function calculate() {
   return {inc, exp, bal: inc-exp};
 }
 
-// Render overzicht categorieën/items
 function renderOverview() {
   const div = document.getElementById("overview");
   div.innerHTML = "";
@@ -58,7 +54,6 @@ function renderOverview() {
       titleDiv.innerHTML = `<strong>${key}</strong>`;
       catDiv.appendChild(titleDiv);
 
-      // +Sub categorie knop
       const addSub = document.createElement("button");
       addSub.innerText = "+Sub";
       addSub.className="small";
@@ -70,7 +65,6 @@ function renderOverview() {
       };
       titleDiv.appendChild(addSub);
 
-      // Items weergeven
       cat.items.forEach((item,i)=>{
         const iDiv = document.createElement("div");
         iDiv.className="item";
@@ -102,10 +96,7 @@ function renderOverview() {
         const delBtn = document.createElement("button");
         delBtn.innerText="❌";
         delBtn.className="small";
-        delBtn.onclick=()=>{
-          cat.items.splice(i,1);
-          render();
-        };
+        delBtn.onclick=()=>{cat.items.splice(i,1); render();}
 
         iDiv.appendChild(nameInput);
         iDiv.appendChild(amtInput);
@@ -116,10 +107,9 @@ function renderOverview() {
         catDiv.appendChild(iDiv);
       });
 
-      // +Nieuw vak voor inline toevoegen
+      // inline +Nieuw vak
       const newDiv = document.createElement("div");
       newDiv.className="new-entry";
-
       const nameInp = document.createElement("input"); nameInp.placeholder="Naam";
       const amtInp = document.createElement("input"); amtInp.placeholder="Bedrag"; amtInp.type="number";
       const freqInp = document.createElement("select");
@@ -136,9 +126,8 @@ function renderOverview() {
         let a = parseFloat(amtInp.value);
         if(!n || isNaN(a)) return;
         cat.items.push({name:n, amount:a, freq:freqInp.value, kind:kindInp.value});
-        render();
+        nameInp.value=""; amtInp.value=""; render();
       };
-
       newDiv.appendChild(nameInp);
       newDiv.appendChild(amtInp);
       newDiv.appendChild(freqInp);
@@ -148,8 +137,6 @@ function renderOverview() {
       catDiv.appendChild(newDiv);
 
       container.appendChild(catDiv);
-
-      // Recursief voor subcategorieën
       walk(cat.sub, catDiv);
     });
   }
@@ -157,7 +144,6 @@ function renderOverview() {
   walk(data[months[currentMonth]].categories, div);
 }
 
-// Render grafiek
 function renderChart(t){
   const c=document.getElementById("chart");
   const ctx=c.getContext("2d");
@@ -172,7 +158,6 @@ function renderChart(t){
   });
 }
 
-// Render alles
 function render(){
   renderMonths();
   const t = calculate();
@@ -183,4 +168,5 @@ function render(){
   renderOverview();
 }
 
+// Start rendering
 render();
