@@ -52,6 +52,24 @@ label { margin-right:10px; }
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "JE_API_KEY",
+    authDomain: "JE_PROJECT.firebaseapp.com",
+    projectId: "JE_PROJECT",
+    storageBucket: "JE_PROJECT.appspot.com",
+    messagingSenderId: "JE_MESSAGING_ID",
+    appId: "JE_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  window.auth = auth; // Globaal beschikbaar
+</script>
+
 <body>
 <header>
   <h1>Budgettool 5.0</h1>
