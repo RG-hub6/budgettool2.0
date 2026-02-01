@@ -3,28 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <title>Budgettool 5.0</title>
-<link rel="stylesheet" href="style.css">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f4f6fb;
+  margin:0;
+}
+header {
+  background:#4f46e5;
+  color:white;
+  padding:15px;
+  text-align:center;
+}
+main {
+  padding:15px;
+}
+.panel {
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+button {
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#4f46e5;
+  color:white;
+}
+button.small {
+  font-size:12px;
+  padding:4px 8px;
+}
+input, select {
+  padding:6px;
+  margin:4px 0;
+}
+.tree {
+  margin-left:20px;
+  border-left:2px solid #ddd;
+  padding-left:10px;
+}
+.item {
+  display:flex;
+  gap:6px;
+  align-items:center;
+  margin:4px 0;
+}
+.badge {
+  padding:2px 6px;
+  border-radius:6px;
+  font-size:11px;
+  background:#e5e7eb;
+}
+.income { color:green; }
+.expense { color:red; }
+</style>
 </head>
+
 <body>
+<header>
+  <h1>Budgettool 5.0</h1>
+  <select id="monthSelect"></select>
+</header>
 
-<h1>📊 Budgettool 5.0</h1>
+<main>
+  <div class="panel">
+    <h3>Overzicht deze maand</h3>
+    <p>Inkomsten: €<span id="inc">0</span></p>
+    <p>Uitgaven: €<span id="exp">0</span></p>
+    <h3>Saldo: €<span id="bal">0</span></h3>
+  </div>
 
-<div id="months"></div>
+  <div class="panel">
+    <h3>Categorieën</h3>
+    <button onclick="addCategory()">+ nieuwe categorie</button>
+    <div id="categories"></div>
+  </div>
+</main>
 
-<div class="summary">
-  <div>Inkomsten: € <span id="income">0</span></div>
-  <div>Uitgaven: € <span id="expense">0</span></div>
-  <div>Saldo: € <span id="balance">0</span></div>
-</div>
+<script>
+const data = {
+  categories: []
+};
 
-<canvas id="chart" width="420" height="200"></canvas>
+const months = [
+  "Januari","Februari","Maart","April","Mei","Juni",
+  "Juli","Augustus","September","Oktober","November","December"
+];
 
-<hr>
+const monthSelect = document.getElementById("monthSelect");
+months.forEach((m,i)=>{
+  const o=document.createElement("option");
+  o.value=i; o.textContent=m;
+  monthSelect.appendChild(o);
+});
+let currentMonth = new Date().getMonth();
+monthSelect.value = currentMonth;
+monthSelect.onchange = ()=>{currentMonth=+monthSelect.value; render();};
 
-<h2>Overzicht deze maand</h2>
-<div id="overview"></div>
+function addCategory(parent){
+  const name = prompt("Naam categorie:");
+  if(!name) return;
+  const cat = { name, children:[], items:[] };
+  (parent ? parent.children : data.categories).push(cat);
+  render();
+}
 
-<script src="script.js"></script>
+function addItem(cat){
+  const label = prompt("Naam bedrag:");
+  if(!label) return;
+  const amount = parseFloat(prompt("Bedrag (€):"));
+  if(isNaN(amount)) return;
+  const type = prompt("inkomen of uitgave?","uitgave");
+  const freq = prompt("dag / week / maand / jaar / eenmalig","maand");
+  cat.items.push({
+    label, amount, type, freq,
+    startMonth: currentMonth
+  });
+  render();
+}
+
+function calcItem(item, month){
+  let amt = item.amount;
+  switch(item.freq){
+    case "dag": amt *= 30; break;
+    case "week": amt *= 4.33; break;
+    case "maand": break;
+    case "jaar": amt = item.amount / 12; break;
+    case "eenmalig":
+      if(month !== item.startMonth) return 0;
+      break;
+    default: return 0;
+  }
+  return amt;
+}
+
+function sumCategory(cat){
+  let inc=0, exp=0;
+  cat.items.forEach(i=>{
+    const v = calcItem(i, currentMonth);
+    if(i.type==="inkomen") inc+=v;
+    else exp+=v;
+  });
+  cat.children.forEach(c=>{
+    const r=sumCategory(c);
+    inc+=r.inc; exp+=r.exp;
+  });
+  return {inc,exp};
+}
+
+function renderCategory(cat, parentEl){
+  const div=document.createElement("div");
+  div.className="tree";
+  div.innerHTML=`<strong>${cat.name}</strong>
+    <button class="small" onclick='addItem(ref)'>+ bedrag</button>
+    <button class="small" onclick='addCategory(ref)'>+ subcategorie</button>`;
+  parentEl.appendChild(div);
+  cat.items.forEach(i=>{
+    const el=document.createElement("div");
+    el.className="item";
+    el.innerHTML=`
+      <span>${i.label}</span>
+      <span class="badge">${i.freq}</span>
+      <span class="${i.type==="inkomen"?"income":"expense"}">
+        €${calcItem(i,currentMonth).toFixed(2)}
+      </span>
+    `;
+    div.appendChild(el);
+  });
+  cat.children.forEach(c=>{
+    window.ref=c;
+    renderCategory(c, div);
+  });
+}
+
+function render(){
+  let inc=0, exp=0;
+  const cats=document.getElementById("categories");
+  cats.innerHTML="";
+  data.categories.forEach(c=>{
+    const r=sumCategory(c);
+    inc+=r.inc; exp+=r.exp;
+    window.ref=c;
+    renderCategory(c, cats);
+  });
+  inc=Math.round(inc*100)/100;
+  exp=Math.round(exp*100)/100;
+  document.getElementById("inc").textContent=inc;
+  document.getElementById("exp").textContent=exp;
+  document.getElementById("bal").textContent=(inc-exp).toFixed(2);
+}
+
+render();
+</script>
 </body>
 </html>
-
