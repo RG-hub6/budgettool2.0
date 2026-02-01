@@ -4,9 +4,9 @@ const months = [
 ];
 let currentMonth = 0;
 
-// Elke maand heeft zijn eigen categorieboom
+// Data per maand
 let data = {};
-months.forEach(m => data[m]={categories:{}});
+months.forEach(m => data[m] = {categories:{}});
 
 // Render maandknoppen
 function renderMonths() {
@@ -21,21 +21,28 @@ function renderMonths() {
   });
 }
 
-// Voeg een item toe
+// Voeg entry toe
 function addEntry() {
   const pathStr = document.getElementById("categoryPath").value.trim();
   const itemName = document.getElementById("itemName").value.trim();
-  const amount = parseFloat(document.getElementById("amount").value);
+  let amount = parseFloat(document.getElementById("amount").value);
   const kind = document.getElementById("kind").value;
   const freq = document.getElementById("frequency").value;
   if(!pathStr || !itemName || isNaN(amount)) return;
 
-  const path = pathStr.split(">").map(p=>p.trim());
+  // Pas frequentie aan naar maandbedrag
+  switch(freq){
+    case "week": amount = amount*4.33; break;
+    case "year": amount = amount/12; break;
+    case "once": break;
+    case "month": break;
+  }
 
+  const path = pathStr.split(">").map(p=>p.trim());
   let obj = data[months[currentMonth]].categories;
   path.forEach(p=>{
     if(!obj[p]) obj[p]={items:[], sub:{}};
-    obj = obj[p].sub;
+    obj=obj[p].sub;
   });
 
   let parent = data[months[currentMonth]].categories;
@@ -48,14 +55,8 @@ function addEntry() {
   render();
 }
 
-// Controleer of item van toepassing is deze maand
-function appliesThisMonth(item,m) {
-  if(item.freq==="once") return m===currentMonth;
-  if(item.freq==="month") return true;
-  if(item.freq==="year") return m===0;
-  if(item.freq==="week") return true;
-  return false;
-}
+// Controleer of item in huidige maand telt
+function appliesThisMonth(item) { return true; } // alle bedragen al omgerekend
 
 // Bereken totaal inkomsten/uitgaven
 function calculate() {
@@ -63,10 +64,8 @@ function calculate() {
   function walk(categ){
     Object.values(categ).forEach(cat=>{
       cat.items.forEach(item=>{
-        if(appliesThisMonth(item,currentMonth)){
-          if(item.kind==="income") inc+=item.amount;
-          else exp+=item.amount;
-        }
+        if(item.kind==="income") inc+=item.amount;
+        else exp+=item.amount;
       });
       walk(cat.sub);
     });
@@ -100,14 +99,30 @@ function renderOverview() {
       };
       catDiv.appendChild(addSub);
 
-      // Items in categorie
-      cat.items.forEach(item=>{
-        if(appliesThisMonth(item,currentMonth)){
-          const iDiv=document.createElement("div");
-          iDiv.innerText=`${item.name} — €${item.amount} (${item.kind}, ${item.freq})`;
-          iDiv.style.marginLeft="20px";
-          catDiv.appendChild(iDiv);
-        }
+      // Items tonen + bewerken/verwijderen
+      cat.items.forEach((item,i)=>{
+        const iDiv=document.createElement("div");
+        iDiv.className="item";
+        const nameInput = document.createElement("input");
+        nameInput.value = item.name;
+        nameInput.className="edit";
+        nameInput.onchange=()=>{item.name=nameInput.value; render();}
+        const amountInput = document.createElement("input");
+        amountInput.value = item.amount.toFixed(2);
+        amountInput.type="number";
+        amountInput.className="edit";
+        amountInput.onchange=()=>{item.amount=parseFloat(amountInput.value); render();}
+        const delBtn = document.createElement("button");
+        delBtn.innerText="❌";
+        delBtn.className="small";
+        delBtn.onclick=()=>{
+          cat.items.splice(i,1);
+          render();
+        };
+        iDiv.appendChild(nameInput);
+        iDiv.appendChild(amountInput);
+        iDiv.appendChild(delBtn);
+        catDiv.appendChild(iDiv);
       });
 
       container.appendChild(catDiv);
@@ -144,4 +159,3 @@ function render(){
 }
 
 render();
-
