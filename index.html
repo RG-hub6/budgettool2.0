@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Budgettool 5.0</title>
-
-<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
 <style>
 body { font-family: Arial, sans-serif; background:#f4f6fb; margin:0; }
 header { background:#4f46e5; color:white; padding:15px; text-align:center; }
@@ -21,9 +18,9 @@ input, select { padding:6px; margin:4px 0; }
 .income { color:green; }
 .expense { color:red; }
 canvas { max-width:100%; }
+label { margin-right:10px; }
 </style>
 </head>
-
 <body>
 <header>
   <h1>Budgettool 5.0</h1>
@@ -31,7 +28,6 @@ canvas { max-width:100%; }
 </header>
 
 <main>
-
 <div class="panel">
   <h3>Overzicht deze maand</h3>
   <p>Inkomsten: €<span id="inc">0</span></p>
@@ -41,6 +37,9 @@ canvas { max-width:100%; }
 
 <div class="panel">
   <h3>Grafiek (per maand)</h3>
+  <label><input type="checkbox" id="showIncome" checked> Inkomsten</label>
+  <label><input type="checkbox" id="showExpense" checked> Uitgaven</label>
+  <label><input type="checkbox" id="showSaldo" checked> Saldo</label>
   <canvas id="chart"></canvas>
 </div>
 
@@ -51,12 +50,11 @@ canvas { max-width:100%; }
 </div>
 
 <script>
-/* ================= DATA ================= */
 const data = { categories: [] };
 const months = ["Jan","Feb","Mrt","Apr","Mei","Jun","Jul","Aug","Sep","Okt","Nov","Dec"];
 let currentMonth = new Date().getMonth();
 
-/* ================= MAAND SELECT ================= */
+/* Maand selectie */
 const monthSelect = document.getElementById("monthSelect");
 months.forEach((m,i)=>{
   const o=document.createElement("option");
@@ -64,12 +62,9 @@ months.forEach((m,i)=>{
   monthSelect.appendChild(o);
 });
 monthSelect.value=currentMonth;
-monthSelect.onchange=()=>{
-  currentMonth=+monthSelect.value;
-  render();
-};
+monthSelect.onchange=()=>{ currentMonth=+monthSelect.value; render(); };
 
-/* ================= CATEGORIE & ITEMS ================= */
+/* Categorie & Item functies */
 function addCategory(parent){
   const name = prompt("Naam categorie:");
   if(!name) return;
@@ -77,7 +72,6 @@ function addCategory(parent){
   (parent ? parent.children : data.categories).push(cat);
   render();
 }
-
 function addItem(cat){
   const label = prompt("Naam bedrag:");
   if(!label) return;
@@ -85,14 +79,11 @@ function addItem(cat){
   if(isNaN(amount)) return;
   const type = prompt("inkomen of uitgave","uitgave");
   const freq = prompt("dag / week / maand / jaar / eenmalig","maand");
-
-  cat.items.push({
-    label, amount, type, freq, startMonth: currentMonth
-  });
+  cat.items.push({ label, amount, type, freq, startMonth: currentMonth });
   render();
 }
 
-/* ================= BEREKENING ================= */
+/* Berekening per item */
 function calcItem(item, month){
   if(month < item.startMonth) return 0;
   switch(item.freq){
@@ -100,19 +91,18 @@ function calcItem(item, month){
     case "week": return item.amount * 4.33;
     case "maand": return item.amount;
     case "jaar": return item.amount / 12;
-    case "eenmalig": return month === item.startMonth ? item.amount : 0;
+    case "eenmalig": return month===item.startMonth ? item.amount : 0;
     default: return 0;
   }
 }
 
-/* ================= TOTAAL ================= */
+/* Berekening totaal per maand */
 function sumMonth(month){
   let inc=0, exp=0;
   function walk(cat){
     cat.items.forEach(i=>{
       const v=calcItem(i,month);
-      if(i.type==="inkomen") inc+=v;
-      else exp+=v;
+      if(i.type==="inkomen") inc+=v; else exp+=v;
     });
     cat.children.forEach(walk);
   }
@@ -120,7 +110,7 @@ function sumMonth(month){
   return {inc, exp, saldo: inc-exp};
 }
 
-/* ================= RENDER CATEGORIE ================= */
+/* Render categorieën */
 function renderCategory(cat, parent){
   const div=document.createElement("div");
   div.className="tree";
@@ -133,11 +123,9 @@ function renderCategory(cat, parent){
   cat.items.forEach(i=>{
     const el=document.createElement("div");
     el.className="item";
-    el.innerHTML=`
-      <span>${i.label}</span>
+    el.innerHTML=`<span>${i.label}</span>
       <span class="badge">${i.freq}</span>
-      <span class="${i.type==="inkomen"?"income":"expense"}">€${calcItem(i,currentMonth).toFixed(2)}</span>
-    `;
+      <span class="${i.type==="inkomen"?"income":"expense"}">€${calcItem(i,currentMonth).toFixed(2)}</span>`;
     div.appendChild(el);
   });
   cat.children.forEach(c=>{
@@ -146,31 +134,31 @@ function renderCategory(cat, parent){
   });
 }
 
-/* ================= GRAFIEK ================= */
+/* Grafiek */
 let chart;
 function renderChart(){
   const inc=[], exp=[], saldo=[];
   for(let m=0;m<12;m++){
     const r=sumMonth(m);
-    inc.push(r.inc);
-    exp.push(r.exp);
-    saldo.push(r.saldo);
+    inc.push(r.inc); exp.push(r.exp); saldo.push(r.saldo);
   }
   if(chart) chart.destroy();
-  chart=new Chart(document.getElementById("chart"),{
-    type:"bar",
-    data:{
-      labels:months,
-      datasets:[
-        {label:"Inkomsten", data:inc, backgroundColor:"green"},
-        {label:"Uitgaven", data:exp, backgroundColor:"red"},
-        {label:"Saldo", data:saldo, backgroundColor:"blue"}
-      ]
-    }
-  });
+  const datasets=[];
+  if(document.getElementById("showIncome").checked)
+    datasets.push({label:"Inkomsten", data:inc, backgroundColor:"green"});
+  if(document.getElementById("showExpense").checked)
+    datasets.push({label:"Uitgaven", data:exp, backgroundColor:"red"});
+  if(document.getElementById("showSaldo").checked)
+    datasets.push({label:"Saldo", data:saldo, backgroundColor:"blue"});
+  chart=new Chart(document.getElementById("chart"),{ type:"bar", data:{ labels:months, datasets:datasets }});
 }
 
-/* ================= RENDER ================= */
+/* Checkbox events */
+document.getElementById("showIncome").addEventListener("change", renderChart);
+document.getElementById("showExpense").addEventListener("change", renderChart);
+document.getElementById("showSaldo").addEventListener("change", renderChart);
+
+/* Render alles */
 function render(){
   const r=sumMonth(currentMonth);
   document.getElementById("inc").textContent=r.inc.toFixed(2);
@@ -179,15 +167,11 @@ function render(){
 
   const root=document.getElementById("categories");
   root.innerHTML="";
-  data.categories.forEach(c=>{
-    window.ref=c;
-    renderCategory(c,root);
-  });
-
+  data.categories.forEach(c=>{ window.ref=c; renderCategory(c,root); });
   renderChart();
 }
 
-setTimeout(()=>render(),100); // zorgt dat chart altijd tekent
+setTimeout(()=>render(),100);
 </script>
 </body>
 </html>
