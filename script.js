@@ -1,60 +1,7 @@
-const auth = window.auth;
+// === BEGIN HERSTELDE BUDGETTOOL ===
 
-const loginForm = document.getElementById("loginForm");
-const budgetApp = document.getElementById("budgetApp");
-
-import("https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js").then(
-({ createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged }) => {
-
-  signupBtn.onclick = () =>
-    createUserWithEmailAndPassword(auth, email.value, password.value);
-
-  loginBtn.onclick = () =>
-    signInWithEmailAndPassword(auth, email.value, password.value);
-
-  onAuthStateChanged(auth, user => {
-    loginForm.style.display = user ? "none" : "block";
-    budgetApp.style.display = user ? "block" : "none";
-  });
-});
-const authInstance = window.auth;
-
-// Account aanmaken
-document.getElementById('signupBtn').addEventListener('click', () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  authInstance.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      console.log("Account aangemaakt:", userCredential.user.email);
-    })
-    .catch(error => alert(error.message));
-});
-
-// Inloggen
-document.getElementById('loginBtn').addEventListener('click', () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  authInstance.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      console.log("Ingelogd als:", userCredential.user.email);
-    })
-    .catch(error => alert(error.message));
-});
-
-// Auth-status controleren
-authInstance.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById('budgetApp').style.display = 'block';
-    document.getElementById('loginForm').style.display = 'none';
-  } else {
-    document.getElementById('budgetApp').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block';
-  }
-});
-
-const mymonths = [
+// Maanden
+const months = [
   "Januari","Februari","Maart","April","Mei","Juni",
   "Juli","Augustus","September","Oktober","November","December"
 ];
@@ -103,7 +50,7 @@ function calculate(){
       walk(cat.sub);
     });
   }
-  walk(data[mymonths[currentMonth]].categories);
+  walk(data[months[currentMonth]].categories);
   return {inc, exp, bal: inc-exp};
 }
 
@@ -111,7 +58,7 @@ function calculate(){
 function renderOverview(){
   const div = document.getElementById("overview");
   div.innerHTML = "";
-  ensureCategoryExists(mymonths[currentMonth]);
+  ensureCategoryExists(months[currentMonth]);
 
   function walk(categ, container){
     Object.keys(categ).forEach(key=>{
@@ -241,3 +188,5 @@ function render(){
 }
 
 render();
+
+// === EINDE HERSTELDE BUDGETTOOL ===
