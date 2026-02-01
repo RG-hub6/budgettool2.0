@@ -25,6 +25,7 @@ canvas { background: white; border-radius: 6px; }
   margin-left: 20px;
   padding-left: 10px;
   border-left: 2px solid #ccc;
+  margin-top: 5px;
 }
 .item {
   display: flex;
@@ -39,4 +40,10 @@ input, select {
 button.small {
   padding: 2px 6px;
   font-size: 0.8em;
+}
+.new-entry {
+  margin-top: 5px;
+  margin-left: 20px;
+  display: flex;
+  gap: 5px;
 }
