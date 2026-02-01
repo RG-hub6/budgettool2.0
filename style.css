@@ -1,7 +1,7 @@
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
-  background: #f5f7fa;
+  background: #f4f6f8;
 }
 
 h1 {
@@ -13,11 +13,12 @@ h1 {
   padding: 6px 10px;
   border: none;
   cursor: pointer;
+  background: #ddd;
 }
 
 #month-buttons .active {
   background: #2196f3;
-  color: blue;
+  color: white;
 }
 
 #summary {
@@ -26,20 +27,14 @@ h1 {
   margin: 15px 0;
 }
 
-#editor {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-#editor input, #editor select {
-  margin: 5px;
-}
-
-li {
-  background: white;
+input, select {
   margin: 5px 0;
+  padding: 5px;
+}
+
+.category {
+  background: white;
+  margin: 6px 0;
   padding: 8px;
   border-radius: 6px;
 }
